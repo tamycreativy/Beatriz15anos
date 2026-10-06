@@ -1,0 +1,1170 @@
+<title>O Baile do Diamante</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Pinyon+Script&display=swap" rel="stylesheet">
+<style>
+@font-face { font-family: 'Great Vibes'; src: url('great-vibes.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+/* Layout: a ilustração da capa ocupa a cena 9:16. Toque no livro aproxima a câmera da página em branco, onde o convidado assina. Ao registrar, a câmera entra no salão. 1u = 1% da largura da cena. */
+:root {
+  --u: min(1vw, 0.5625vh);
+  --night: #120a14;
+  --plum: #3a1a2c;
+  --plum-deep: #24101d;
+  --ivory: #f3ead9;
+  --lilac: #b7a3d3;
+  --gold: #c2a05a;
+  --ink: #271a45;
+  --font-print: 'IM Fell English', Georgia, 'Times New Roman', serif;
+  --font-sc: 'IM Fell English SC', Georgia, 'Times New Roman', serif;
+  --font-script: 'Great Vibes', 'Pinyon Script', 'Snell Roundhand', cursive;
+  --font-hand: 'Pinyon Script', 'Snell Roundhand', 'Apple Chancery', cursive;
+  /* câmera: aproximação na página em branco (origem 0 0) */
+  --zs: 1.6;
+  --zx: -55.6%;
+  --zy: -60%;
+  /* câmera: entrada no salão */
+  --ws: 2.6;
+  --wx: -111%;
+  --wy: -59%;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body {
+  background: var(--night);
+  color: var(--ivory);
+  font-family: var(--font-print);
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+.stage { position: relative; height: 100%; display: flex; justify-content: center; align-items: center; overflow: hidden; background: var(--night); }
+.backdrop {
+  position: absolute; inset: -6%;
+  background: url("capa.jpg") center / cover no-repeat;
+  filter: blur(26px) brightness(.32) saturate(.9);
+}
+.scene {
+  position: relative; flex: none;
+  width: calc(var(--u) * 100);
+  height: calc(var(--u) * 177.78);
+  max-width: 100vw;
+  overflow: hidden;
+  background: var(--night);
+  touch-action: manipulation;
+}
+.scene > * { position: absolute; }
+
+/* Mundo: imagem + brilhos que acompanham a câmera */
+.world {
+  inset: 0;
+  background: url("capa.jpg") center / 100% 100% no-repeat;
+  transform-origin: 0 0;
+  transition: transform 2.4s cubic-bezier(.6,0,.2,1), filter 5s ease;
+  will-change: transform;
+}
+.stage.zoomed .world { transform: translate(var(--zx), var(--zy)) scale(var(--zs)); }
+.stage.finale .world {
+  transform: translate(var(--wx), var(--wy)) scale(var(--ws));
+  filter: brightness(.12) saturate(.6);
+  transition: transform 6s cubic-bezier(.45,0,.25,1), filter 5.5s ease .4s;
+}
+.world > * { position: absolute; pointer-events: none; }
+
+.fl {
+  width: calc(var(--u) * 13); height: calc(var(--u) * 13);
+  margin: calc(var(--u) * -6.5) 0 0 calc(var(--u) * -6.5);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,205,120,.62) 0, rgba(255,170,80,.24) 35%, transparent 68%);
+  mix-blend-mode: screen;
+  animation: flick 2.6s ease-in-out infinite;
+}
+.fl.s { width: calc(var(--u) * 9); height: calc(var(--u) * 9); margin: calc(var(--u) * -4.5) 0 0 calc(var(--u) * -4.5); opacity: .7; }
+@keyframes flick {
+  0%,100% { opacity: .75; transform: scale(1); }
+  30% { opacity: 1; transform: scale(1.08); }
+  55% { opacity: .66; transform: scale(.94); }
+  80% { opacity: .92; transform: scale(1.04); }
+}
+.chand {
+  left: 65%; top: 6%;
+  width: calc(var(--u) * 60); height: calc(var(--u) * 34);
+  transform: translate(-50%, -50%);
+  background: radial-gradient(ellipse, rgba(255,236,190,.38) 0, rgba(255,222,160,.12) 45%, transparent 72%);
+  mix-blend-mode: screen;
+  animation: flick 5s ease-in-out infinite;
+}
+.pageglow {
+  left: 66.5%; top: 69.5%;
+  width: calc(var(--u) * 58); height: calc(var(--u) * 22);
+  transform: translate(-50%, -50%) rotate(-3deg);
+  background: radial-gradient(ellipse, rgba(255,246,222,.7) 0, rgba(255,240,205,.22) 48%, transparent 72%);
+  mix-blend-mode: screen;
+  animation: pulse 2.8s ease-in-out infinite;
+  transition: opacity .8s ease;
+}
+.stage.zoomed .pageglow { opacity: 0; animation: none; }
+@keyframes pulse { 0%,100% { opacity: .25; } 50% { opacity: .85; } }
+.motes span {
+  position: absolute;
+  width: calc(var(--u) * .6); height: calc(var(--u) * .6);
+  border-radius: 50%;
+  background: rgba(255,230,170,.85);
+  opacity: 0;
+  animation: drift var(--dur) linear var(--dl) infinite;
+}
+@keyframes drift {
+  0% { transform: translate(0,0); opacity: 0; }
+  20% { opacity: .7; }
+  100% { transform: translate(var(--dx), var(--dy)); opacity: 0; }
+}
+
+/* Toque no livro */
+.tap {
+  left: 36%; top: 58%; width: 64%; height: 24%;
+  background: none; border: 0; border-radius: calc(var(--u) * 3);
+  z-index: 3;
+}
+.stage.zoomed .tap { pointer-events: none; }
+
+/* Zona de assinatura sobre a página em branco */
+.sigzone {
+  left: 14%; right: 9%; top: 40%; height: 24%;
+  z-index: 4;
+  opacity: 0; pointer-events: none;
+  transition: opacity 1s ease;
+  mix-blend-mode: multiply; /* a tinta se mistura com a textura do papel da ilustração */
+}
+.stage.zoomed .sigzone { opacity: 1; pointer-events: auto; transition-delay: 1.4s; }
+.stage.finale .sigzone, .stage.leaving .sigzone { opacity: 0; transition-delay: 0s; transition-duration: .8s; }
+.sigzone canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: crosshair; }
+.sigghost { position: absolute; left: 0; right: 0; bottom: 34%; text-align: center; font: 400 calc(var(--u) * 8)/1 var(--font-hand); color: rgba(110,74,30,.3); pointer-events: none; transition: opacity .6s ease; }
+#sigwet { pointer-events: none; }
+.sigzone.started .sigghost { opacity: 0; }
+.typed {
+  position: absolute; left: 0; right: 0; bottom: 30%;
+  width: 100%;
+  background: none; border: 0; outline: 0;
+  text-align: center;
+  font: 400 calc(var(--u) * 9)/1.1 var(--font-hand);
+  color: var(--ink);
+  transition: color 1.2s ease, text-shadow 1.2s ease;
+}
+.typed::placeholder { color: rgba(39,26,69,.25); }
+.typed.wet { color: #433069; text-shadow: 0 0 calc(var(--u) * .8) rgba(194,160,90,.7); }
+
+/* Painel de baixo */
+.panel {
+  left: calc(var(--u) * 6); right: calc(var(--u) * 6); top: 30%;
+  z-index: 5;
+  padding: calc(var(--u) * 5) calc(var(--u) * 5) calc(var(--u) * 4);
+  border-radius: calc(var(--u) * 3);
+  background: linear-gradient(160deg, rgba(255,248,236,.16), rgba(255,240,224,.05) 60%, rgba(255,248,236,.12));
+  -webkit-backdrop-filter: blur(calc(var(--u) * 0.9)) saturate(1.1);
+  backdrop-filter: blur(calc(var(--u) * 0.9)) saturate(1.1);
+  border: 1px solid rgba(240,214,150,.6);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.45), inset 0 0 calc(var(--u) * 4) rgba(255,255,255,.08), 0 calc(var(--u) * 1.5) calc(var(--u) * 5) rgba(58,10,26,.22);
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  text-shadow: 0 0 calc(var(--u) * 2) rgba(255,246,228,.8), 0 0 calc(var(--u) * .6) rgba(255,246,228,.7);
+  transition: opacity 1s ease, top 1.2s cubic-bezier(.6,0,.2,1);
+}
+.stage.zoomed .panel { top: 7.5%; padding-top: calc(var(--u) * 4); padding-bottom: calc(var(--u) * 2.5); }
+.stage.leaving .panel, .stage.finale .panel { opacity: 0; pointer-events: none; }
+.ask {
+  margin: 0;
+  font: italic 400 calc(var(--u) * 5.2)/1.28 var(--font-print);
+  color: #4a0f22;
+  text-wrap: balance;
+}
+.collapse { display: grid; grid-template-rows: 1fr; width: 100%; transition: grid-template-rows .9s ease .6s, opacity .8s ease .6s; }
+.collapse > div { min-height: 0; overflow: hidden; }
+.hintrow { color: #3a0a1a; }
+.hint { margin: calc(var(--u) * 2.5) 0 0; font: 400 calc(var(--u) * 3)/1.2 var(--font-sc); letter-spacing: .2em; color: #3a0a1a; animation: pulse 2.8s ease-in-out infinite; }
+.stage.zoomed .hintrow { grid-template-rows: 0fr; opacity: 0; }
+.toolsrow { grid-template-rows: 0fr; opacity: 0; transition-delay: 0s; }
+.stage.zoomed .toolsrow { grid-template-rows: 1fr; opacity: 1; transition-delay: 1.6s; }
+
+.actions { display: flex; align-items: center; justify-content: center; gap: calc(var(--u) * 3); margin-top: calc(var(--u) * 3); }
+.seal {
+  flex: none;
+  width: calc(var(--u) * 14); height: calc(var(--u) * 14);
+  min-width: 48px; min-height: 48px;
+  border: 0; position: relative;
+  border-radius: 50% 46% 52% 48% / 48% 52% 46% 50%;
+  background: radial-gradient(circle at 35% 30%, #dcc17c, #a07f3a 55%, #6d5424);
+  box-shadow: inset 0 0 0 calc(var(--u) * .9) rgba(255,255,255,.08), inset 0 calc(var(--u) * -1) calc(var(--u) * 1.4) rgba(60,36,8,.5), 0 calc(var(--u) * .8) calc(var(--u) * 1.8) rgba(0,0,0,.55);
+  transition: transform .2s ease, filter .6s ease, opacity .6s ease;
+}
+.seal svg {
+  position: absolute; inset: 0; margin: auto;
+  width: calc(var(--u) * 8.4); height: calc(var(--u) * 8.4);
+  min-width: 28px; min-height: 28px;
+  pointer-events: none;
+}
+.seal:disabled { filter: grayscale(.75) brightness(.8); opacity: .5; cursor: default; }
+.seal:not(:disabled):active, .seal.stamped { transform: scale(.9); }
+.seal-label { display: flex; flex-direction: column; gap: calc(var(--u) * .8); text-align: left; min-width: 0; }
+.seal-label b { font: 400 calc(var(--u) * 3.8)/1.1 var(--font-sc); letter-spacing: .12em; color: #4a0f22; }
+.seal-label i { font: italic 400 calc(var(--u) * 3.2)/1.2 var(--font-print); color: #6b1f35; }
+
+.links { display: flex; justify-content: center; flex-wrap: wrap; gap: 0 calc(var(--u) * 3); margin-top: calc(var(--u) * 1); }
+.linkbtn {
+  background: none; border: 0;
+  min-height: 44px; padding: 0 calc(var(--u) * 1.5);
+  font: 400 calc(var(--u) * 3)/1 var(--font-sc);
+  letter-spacing: .1em;
+  color: #4a0f22;
+  text-decoration: underline; text-decoration-color: rgba(122,86,24,.9); text-underline-offset: 4px;
+}
+.linkbtn:disabled { opacity: .35; cursor: default; }
+
+/* Cartão da narração */
+.card {
+  inset: 0; z-index: 6;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: calc(var(--u) * 6);
+  padding: 0 calc(var(--u) * 10);
+  text-align: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 2.4s ease;
+}
+.card.on { opacity: 1; pointer-events: auto; }
+.card h2 {
+  margin: 0;
+  font: italic 400 calc(var(--u) * 9)/1.12 var(--font-print);
+  color: #f6eedc;
+  text-shadow: 0 0 calc(var(--u) * 5) rgba(194,160,90,.5);
+  text-wrap: balance;
+}
+.card p { margin: 0; font: 400 calc(var(--u) * 3)/1.5 var(--font-sc); letter-spacing: .16em; color: rgba(243,234,217,.65); text-wrap: balance; }
+.card .diam { width: calc(var(--u) * 1.8); height: calc(var(--u) * 1.8); background: var(--gold); transform: rotate(45deg); }
+
+.mute {
+  left: calc(var(--u) * 4); top: calc(var(--u) * 4);
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: rgba(36,16,29,.5);
+  border: 1px solid rgba(194,160,90,.5);
+  display: grid; place-items: center;
+  z-index: 12;
+}
+.mute svg { width: 20px; height: 20px; }
+.mute .off { display: none; }
+.mute[aria-pressed="true"] .on { display: none; }
+.mute[aria-pressed="true"] .off { display: block; }
+
+@media (prefers-reduced-motion: reduce) {
+  .fl, .chand, .pageglow, .motes span, .hint { animation: none; }
+  .world, .stage.finale .world { transition-duration: .5s; }
+}
+
+/* ================= Abertura em vídeo, escrita à pena, botões e páginas ================= */
+.film, .endimg { inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; pointer-events: none; z-index: 2; background: var(--night); }
+.film { transition: opacity 1.6s ease; }
+.stage.film-on .film { opacity: 1; }
+.endimg { transition: opacity .8s ease; }
+.stage.film-skip .endimg, .stage.ready .endimg { opacity: 1; }
+.stage.ready .endimg { z-index: 4; }
+.cameo { left: 44.3%; top: 19.3%; width: 12.5%; z-index: 3; pointer-events: none; opacity: 0; filter: drop-shadow(0 0 calc(var(--u)*.6) rgba(255,246,228,.7)); }
+.stage.film-skip .world { visibility: hidden; }
+.stage.leaving .tap, .stage.ready .tap { pointer-events: none; }
+
+/* Pergaminho: texto escrito à mão, sincronizado com a narração */
+.script {
+  left: 30%; top: 26.5%; width: 44%; height: 48%;
+  z-index: 3; pointer-events: none;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  text-align: center;
+  font-family: var(--font-script);
+  font-size: calc(var(--u) * var(--fs, 4.4));
+  line-height: 1.24;
+  color: #2b0e19;
+  opacity: 0;
+  --ink: #2b0e19;
+}
+.script p { margin: 0 0 .5em; }
+.script p:last-child { margin-bottom: 0; }
+.script .sal { font-size: 1.12em; }
+.script .em { font-size: 1.16em; margin: .15em 0 .6em; }
+.script .sig { font-size: 1.5em; margin-top: .25em; }
+.w {
+  position: relative; display: inline-block;
+  padding: .3em .16em .42em; margin: -.3em -.16em -.42em;
+  color: var(--ink);
+  text-shadow: 0 0 .03em rgba(43,14,25,.55);
+  -webkit-mask-image: linear-gradient(90deg, #000 calc(var(--p, 0) * 112% - 12%), transparent calc(var(--p, 0) * 112%));
+          mask-image: linear-gradient(90deg, #000 calc(var(--p, 0) * 112% - 12%), transparent calc(var(--p, 0) * 112%));
+}
+.w::after {
+  content: attr(data-t);
+  position: absolute; inset: 0; padding: inherit;
+  color: #0d0408;
+  text-shadow: 0 0 .05em rgba(255,236,200,.95), 0 0 .22em rgba(60,10,25,.35);
+  opacity: var(--wet, 0);
+  pointer-events: none;
+}
+.pen {
+  left: 0; top: 0; z-index: 3; pointer-events: none;
+  width: calc(var(--u) * 7.5); height: calc(var(--u) * 11);
+  transform-origin: 0 100%;
+  opacity: 0; will-change: transform, opacity;
+  filter: drop-shadow(calc(var(--u) * .5) calc(var(--u) * .9) calc(var(--u) * .7) rgba(40,8,18,.38));
+}
+.pen svg { display: block; width: 100%; height: 100%; overflow: visible; }
+
+/* Pular abertura */
+.skipopen {
+  left: 50%; bottom: calc(var(--u) * 2.2); transform: translateX(-50%);
+  z-index: 7;
+  background: none; border: 0; min-height: 44px; padding: 0 calc(var(--u) * 3);
+  font: 400 calc(var(--u) * 2.5)/1 var(--font-sc); letter-spacing: .24em; padding-left: calc(var(--u) * 3 + .24em);
+  color: rgba(255,246,230,.88);
+  text-shadow: 0 0 calc(var(--u) * 1.6) rgba(40,8,18,.95), 0 0 calc(var(--u) * .5) rgba(40,8,18,.9);
+  white-space: nowrap;
+  transition: opacity .8s ease;
+}
+.skipopen span { border-bottom: 1px solid rgba(240,214,150,.55); padding-bottom: 2px; }
+.stage.ready .skipopen { opacity: 0; pointer-events: none; }
+
+/* Botões sobre os medalhões do vídeo */
+.fbtn {
+  z-index: 8;
+  width: calc(var(--u) * 22); height: calc(var(--u) * 22);
+  margin: calc(var(--u) * -11) 0 0 calc(var(--u) * -11);
+  border-radius: 50%; background: none; border: 0; padding: 0;
+  pointer-events: none;
+}
+.stage.ready:not(.paged) .fbtn { pointer-events: auto; }
+.fbtn::after {
+  content: ""; position: absolute; inset: 0; border-radius: 50%;
+  opacity: 0; box-shadow: 0 0 0 0 rgba(255,226,160,0);
+}
+.stage.ready .fbtn::after { animation: ring 3.2s ease-in-out infinite; animation-delay: var(--d); }
+@keyframes ring {
+  0%, 100% { opacity: 0; box-shadow: 0 0 0 calc(var(--u) * .4) rgba(255,226,160,0), 0 0 calc(var(--u) * 2) rgba(255,226,160,0); }
+  50% { opacity: 1; box-shadow: 0 0 0 calc(var(--u) * .4) rgba(255,226,160,.55), 0 0 calc(var(--u) * 3.4) rgba(255,226,160,.6); }
+}
+.fbtn:active::after { animation: none; opacity: 1; box-shadow: 0 0 0 calc(var(--u) * .5) rgba(255,236,190,.9), 0 0 calc(var(--u) * 4) rgba(255,226,160,.9); }
+.fbtn span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+
+.replay {
+  left: 50%; bottom: calc(var(--u) * 1.4); transform: translateX(-50%);
+  z-index: 8; background: none; border: 0; min-height: 44px; padding: 0 calc(var(--u) * 3);
+  font: 400 calc(var(--u) * 2.4)/1 var(--font-sc); letter-spacing: .2em;
+  color: rgba(255,246,230,.8);
+  text-shadow: 0 0 calc(var(--u) * 1.6) rgba(40,8,18,.95);
+  opacity: 0; pointer-events: none; transition: opacity 1s ease;
+}
+.stage.ready:not(.paged) .replay { opacity: 1; pointer-events: auto; }
+
+.toast {
+  left: 50%; bottom: 9%; z-index: 9;
+  transform: translate(-50%, calc(var(--u) * 2));
+  padding: calc(var(--u) * 2.2) calc(var(--u) * 5);
+  border-radius: calc(var(--u) * 6);
+  background: rgba(255,248,236,.2);
+  -webkit-backdrop-filter: blur(calc(var(--u) * 1.2)); backdrop-filter: blur(calc(var(--u) * 1.2));
+  border: 1px solid rgba(240,214,150,.6);
+  font: italic 400 calc(var(--u) * 3.8)/1.2 var(--font-print);
+  color: #fff4e2; text-shadow: 0 0 calc(var(--u) * 1.5) rgba(40,8,18,.9);
+  white-space: nowrap; opacity: 0; pointer-events: none;
+  transition: opacity .4s ease, transform .4s ease;
+}
+.toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+
+/* RSVP */
+.rsvp {
+  position: absolute; left: 8%; right: 8%; top: 10%; bottom: 7%; z-index: 2;
+  display: flex; flex-direction: column; align-items: center;
+  padding: calc(var(--u) * 4) calc(var(--u) * 6) calc(var(--u) * 4);
+  background: radial-gradient(120% 90% at 50% 0%, rgba(255,251,242,.97), rgba(245,230,208,.96) 70%, rgba(236,214,186,.97));
+  border-radius: calc(var(--u) * 3);
+  box-shadow: 0 calc(var(--u) * 2) calc(var(--u) * 6) rgba(20,4,10,.5), inset 0 0 calc(var(--u) * 6) rgba(194,150,70,.22);
+  color: #4a0f22; text-align: center; overflow: hidden;
+  transform: translateY(calc(var(--u) * 2)) scale(.97); transition: transform .7s cubic-bezier(.2,.7,.2,1);
+}
+.page.on .rsvp { transform: none; }
+.rsvp::before { content: ""; position: absolute; inset: calc(var(--u) * 1.4); border: 1px solid rgba(176,132,47,.85); border-radius: calc(var(--u) * 2); pointer-events: none; }
+.rsvp::after { content: ""; position: absolute; inset: calc(var(--u) * 2.3); border: 1px solid rgba(176,132,47,.4); border-radius: calc(var(--u) * 1.4); pointer-events: none; }
+.rsvp .cam { width: calc(var(--u) * 11); height: auto; margin-top: calc(var(--u) * 1); }
+.rsvp small { font: 400 calc(var(--u) * 2.4)/1 var(--font-sc); letter-spacing: .3em; padding-left: .3em; color: #7a2236; margin-top: calc(var(--u) * 1.6); }
+.rsvp h2 { margin: calc(var(--u) * 1) 0 0; font: 400 calc(var(--u) * 9.4)/1.02 var(--font-script); color: #4a0f22; }
+.rsvp .lead { margin: calc(var(--u) * 1.6) 0 calc(var(--u) * 3); font: italic 400 calc(var(--u) * 3.3)/1.3 var(--font-print); color: #6b1f35; }
+.rsvp form { width: 100%; display: flex; flex-direction: column; gap: calc(var(--u) * 2.6); text-align: left; }
+.rsvp label, .rsvp legend { display: block; font: 400 calc(var(--u) * 2.5)/1 var(--font-sc); letter-spacing: .16em; color: #7a2236; padding: 0; margin: 0 0 calc(var(--u) * 1.2); }
+.rsvp fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+.rsvp input[type=text], .rsvp textarea {
+  width: 100%; box-sizing: border-box; background: rgba(255,255,255,.35); color: #3a0a1a;
+  border: 0; border-bottom: 1px solid rgba(176,132,47,.9); border-radius: calc(var(--u) * 1) calc(var(--u) * 1) 0 0;
+  padding: calc(var(--u) * 1.8) calc(var(--u) * 2); font: 400 max(16px, calc(var(--u) * 4.2))/1.2 var(--font-script); resize: none; outline: none;
+}
+.rsvp input[type=text]:focus, .rsvp textarea:focus { background: rgba(255,255,255,.65); border-bottom-color: #7a2236; }
+.rsvp textarea { height: calc(var(--u) * 11); font-size: max(16px, calc(var(--u) * 4)); }
+.rsvp .opts { display: flex; flex-direction: column; gap: calc(var(--u) * 1.8); }
+.rsvp .opt { position: relative; }
+.rsvp .opt input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+.rsvp .opt span {
+  display: block; padding: calc(var(--u) * 2.4) calc(var(--u) * 3); text-align: center;
+  border: 1px solid rgba(176,132,47,.85); border-radius: calc(var(--u) * 6);
+  background: rgba(255,255,255,.3); font: italic 400 calc(var(--u) * 3.5)/1.2 var(--font-print); color: #4a0f22; letter-spacing: 0; transition: background .25s, color .25s, box-shadow .25s;
+}
+.rsvp .opt input:checked + span { background: linear-gradient(160deg, #8a1f3d, #5e1228); color: #fbeed3; box-shadow: 0 calc(var(--u) * .8) calc(var(--u) * 2.4) rgba(80,20,36,.35); }
+.rsvp .opt input:focus-visible + span { outline: 2px solid #b0842f; outline-offset: 2px; }
+.rsvp .count { display: flex; align-items: center; justify-content: center; gap: calc(var(--u) * 5); }
+.rsvp .count button { width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(176,132,47,.9); background: rgba(255,255,255,.4); color: #4a0f22; font: 400 22px/1 var(--font-print); display: grid; place-items: center; padding: 0; }
+.rsvp .count output { min-width: 2ch; text-align: center; font: 400 calc(var(--u) * 8)/1 var(--font-script); }
+.rsvp .count.off { opacity: .35; pointer-events: none; }
+.rsvp .err { min-height: 1.2em; margin: 0; text-align: center; font: italic 400 calc(var(--u) * 3)/1.2 var(--font-print); color: #9a1c3c; }
+.rsvp .send { align-self: center; border: 1px solid rgba(176,132,47,.95); cursor: pointer; }
+.rsvp .done { display: none; flex-direction: column; align-items: center; justify-content: center; flex: 1; }
+.rsvp.sent form, .rsvp.sent .lead, .rsvp.sent .cam, .rsvp.sent small, .rsvp.sent > h2 { display: none; }
+.rsvp.sent .done { display: flex; }
+.rsvp .done h3 { margin: calc(var(--u) * 3) 0 calc(var(--u) * 2); font: 400 calc(var(--u) * 10)/1.05 var(--font-script); color: #4a0f22; }
+.rsvp .done p { margin: 0 0 calc(var(--u) * 5); font: italic 400 calc(var(--u) * 3.6)/1.4 var(--font-print); color: #6b1f35; }
+.rsvp .done .glassbtn { cursor: pointer; font-size: calc(var(--u) * 3); }
+
+/* Páginas dos botões */
+.page {
+  inset: 0; z-index: 9;
+  opacity: 0; pointer-events: none; visibility: hidden;
+  transition: opacity .55s ease, visibility 0s linear .55s;
+}
+.page.on { opacity: 1; pointer-events: auto; visibility: visible; transition-delay: 0s; }
+.page .veil {
+  position: absolute; inset: 0;
+  background: rgba(40,10,22,.6);
+  -webkit-backdrop-filter: blur(calc(var(--u) * 2.4)); backdrop-filter: blur(calc(var(--u) * 2.4));
+}
+.page .pgimg {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
+  transform: scale(.965); transition: transform .7s cubic-bezier(.2,.7,.2,1);
+  filter: drop-shadow(0 calc(var(--u) * 1.5) calc(var(--u) * 4) rgba(20,4,10,.45));
+}
+.page.on .pgimg { transform: none; }
+.x {
+  position: absolute; right: calc(var(--u) * 4); top: calc(var(--u) * 4); z-index: 3;
+  width: 42px; height: 42px; border-radius: 50%;
+  background: linear-gradient(160deg, rgba(255,248,236,.3), rgba(255,240,224,.1));
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  border: 1px solid rgba(240,214,150,.75);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 2px 10px rgba(30,6,14,.3);
+  display: grid; place-items: center;
+}
+.x svg { width: 16px; height: 16px; }
+
+/* Página da localização (moldura em branco + texto) */
+.local {
+  position: absolute; left: 14%; right: 14%; top: 41%; height: 20%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; z-index: 2;
+  text-shadow: 0 0 calc(var(--u) * 1.5) rgba(255,246,228,.85);
+}
+.local small { font: 400 calc(var(--u) * 2.6)/1 var(--font-sc); letter-spacing: .3em; padding-left: .3em; color: #7a2236; }
+.local h2 { margin: calc(var(--u) * 1.4) 0 0; white-space: nowrap; font: 400 calc(var(--u) * 9.4)/1.05 var(--font-script); color: #4a0f22; text-wrap: balance; }
+.local .div { width: calc(var(--u) * 24); height: 1px; margin: calc(var(--u) * 1.8) 0 calc(var(--u) * 2.6); background: linear-gradient(90deg, transparent, rgba(160,110,40,.85), transparent); position: relative; }
+.local .div::after { content: ""; position: absolute; left: 50%; top: 50%; width: calc(var(--u) * 1.6); height: calc(var(--u) * 1.6); background: #b0842f; transform: translate(-50%, -50%) rotate(45deg); }
+.glassbtn {
+  display: inline-flex; align-items: center; gap: calc(var(--u) * 2);
+  padding: calc(var(--u) * 2.6) calc(var(--u) * 7);
+  border-radius: calc(var(--u) * 8);
+  background: linear-gradient(160deg, rgba(255,250,240,.5), rgba(255,240,224,.16) 60%, rgba(255,250,240,.32));
+  -webkit-backdrop-filter: blur(calc(var(--u) * 1)) saturate(1.1); backdrop-filter: blur(calc(var(--u) * 1)) saturate(1.1);
+  border: 1px solid rgba(176,132,47,.85);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 calc(var(--u) * 1) calc(var(--u) * 3) rgba(80,20,36,.2);
+  font: 400 calc(var(--u) * 3.6)/1 var(--font-sc); letter-spacing: .16em; padding-left: calc(var(--u) * 7 + .16em);
+  color: #4a0f22; text-decoration: none; text-shadow: none;
+}
+.glassbtn svg { width: calc(var(--u) * 4); height: calc(var(--u) * 4); min-width: 16px; min-height: 16px; }
+.glassbtn:active { transform: scale(.97); }
+
+@media (prefers-reduced-motion: reduce) { .stage.ready .fbtn::after { animation: none; } .page, .page .pgimg { transition-duration: .01s; } }
+</style>
+
+<main class="stage" id="stage">
+  <div class="backdrop" aria-hidden="true"></div>
+  <div class="scene" id="scene">
+    <div class="world" id="world" aria-hidden="true">
+      <div class="chand"></div>
+      <div class="fl" style="left:1.6%;top:48.2%"></div>
+      <div class="fl" style="left:33.8%;top:42.8%;animation-delay:-1.1s"></div>
+      <div class="fl s" style="left:62.7%;top:5%;animation-delay:-.4s"></div>
+      <div class="fl s" style="left:74%;top:6.2%;animation-delay:-2.1s"></div>
+      <div class="fl s" style="left:46%;top:16%;animation-delay:-1.3s"></div>
+      <div class="fl s" style="left:37%;top:19.7%;animation-delay:-.8s"></div>
+      <div class="fl s" style="left:82%;top:19.5%;animation-delay:-1.8s"></div>
+      <div class="pageglow"></div>
+      <div class="motes" id="motes" style="inset:0"></div>
+    </div>
+
+    <button class="tap" id="tap" type="button" aria-label="Aproximar o livro de presença para assinar"></button>
+
+    <div class="sigzone" id="sigzone">
+      <div class="sigghost" aria-hidden="true">escreva seu nome</div>
+      <canvas id="sig" role="img" aria-label="Espaço para assinar com o dedo"></canvas>
+      <canvas id="sigwet" aria-hidden="true"></canvas>
+      <input class="typed" id="typed" type="text" maxlength="28" placeholder="seu nome" autocomplete="off" aria-label="Seu nome" hidden>
+    </div>
+
+    <div class="panel" id="panel">
+      <p class="ask">Antes de entrar na temporada, deixe seu nome entre os convidados.</p>
+      <div class="collapse hintrow" id="hintrow"><div><p class="hint">toque no livro para assinar</p></div></div>
+      <div class="collapse toolsrow" id="toolsrow">
+        <div id="tools">
+          <div class="actions">
+            <button class="seal" id="seal" type="button" aria-label="Registrar meu nome" disabled>
+              <svg viewBox="0 0 32 32" aria-hidden="true">
+                <path d="M26.5 3.5 C30 9.5 25.5 16.5 14.5 18.5 C19 14 22.5 9 26.5 3.5 Z" fill="rgba(70,46,12,.35)" stroke="#46300c" stroke-width="1.2" stroke-linejoin="round"/>
+                <path d="M26.5 3.5 L12 20" fill="none" stroke="#46300c" stroke-width="1.3" stroke-linecap="round"/>
+                <path d="M21 9.5 L24.5 12.5 M17.5 13.8 L21.3 16.2" stroke="#46300c" stroke-width=".8" stroke-linecap="round"/>
+                <path d="M9.4 20.2 H15.6 V22 Q19 23.2 19 28.6 Q19 30 17.6 30 H7.4 Q6 30 6 28.6 Q6 23.2 9.4 22 Z" fill="#46300c"/>
+                <path d="M8.8 18.8 H16.2 V20.4 H8.8 Z" fill="#46300c"/>
+                <path d="M8.6 26.2 Q12.5 24.6 16.4 26.2" fill="none" stroke="rgba(230,196,120,.8)" stroke-width="1" stroke-linecap="round"/>
+              </svg>
+            </button>
+            <div class="seal-label"><b>Registrar</b><i>seu nome fica guardado no livro</i></div>
+          </div>
+          <div class="links">
+            <button class="linkbtn" id="redo" type="button" disabled>refazer</button>
+            <button class="linkbtn" id="kbd" type="button">usar o teclado</button>
+            <button class="linkbtn" id="skip" type="button">pular</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <img class="endimg" id="endimg" src="fim.jpg" alt="" aria-hidden="true">
+    <video class="film" id="film" src="abertura.mp4" playsinline preload="auto"></video>
+
+    <img class="cameo" id="cameo" src="camafeu.png" alt="">
+    <div class="script" id="script" aria-label="Narração de Lady Whistledown, escrita à mão"></div>
+    <div class="pen" id="pen" aria-hidden="true">
+      <svg viewBox="0 -100 72 100" preserveAspectRatio="xMinYMax meet">
+        <defs>
+          <linearGradient id="vane" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0" stop-color="#f7ecd6"/><stop offset=".55" stop-color="#efd9d4"/><stop offset="1" stop-color="#c98a96"/>
+          </linearGradient>
+        </defs>
+        <path d="M16 -30 C 36 -40 62 -62 69 -99 C 54 -93 40 -85 31 -70 C 24 -58 18 -44 16 -30 Z" fill="url(#vane)" stroke="#8a5a3a" stroke-width=".7"/>
+        <path d="M13 -34 C 5 -52 13 -78 40 -101 C 36 -80 28 -62 20 -46 Z" fill="#fbf3e2" stroke="#8a5a3a" stroke-width=".7"/>
+        <path d="M24 -50 L 40 -62 M 29 -62 L 44 -74 M 33 -73 L 49 -84 M 21 -42 L 35 -52" stroke="#b98a70" stroke-width=".5" fill="none"/>
+        <path d="M0 0 L 50 -97" stroke="#7a5230" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M0 0 L 7 -13" stroke="#1a0a10" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+
+    <button class="fbtn" data-open="info" style="left:28.5%;top:34.8%;--d:0s"><span>Informações</span></button>
+    <button class="fbtn" data-open="rsvp" style="left:50%;top:34.8%;--d:.5s"><span>Confirmar presença</span></button>
+    <button class="fbtn" data-open="local" style="left:71.8%;top:34.8%;--d:1s"><span>Localização</span></button>
+    <button class="fbtn" data-open="dress" style="left:38.2%;top:47.9%;--d:1.5s"><span>Dress code</span></button>
+    <button class="fbtn" data-open="gifts" style="left:61.9%;top:47.9%;--d:2s"><span>Dicas de presentes</span></button>
+
+    <button class="replay" id="replay" type="button">recomeçar</button>
+    <button class="skipopen" id="skipopen" type="button"><span>pular abertura</span></button>
+    <div class="toast" id="toast" role="status"></div>
+
+    <section class="page" id="pg-info" role="dialog" aria-modal="true" aria-label="Informações">
+      <div class="veil"></div>
+      <img class="pgimg" src="pg-info.webp" alt="Convite de Beatriz, 15 anos, em um pergaminho">
+      <button class="x" type="button" aria-label="Fechar"><svg viewBox="0 0 16 16" fill="none" stroke="#fff4e2" stroke-width="1.6" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
+    </section>
+    <section class="page" id="pg-dress" role="dialog" aria-modal="true" aria-label="Dress code">
+      <div class="veil"></div>
+      <img class="pgimg" src="pg-dress.webp" alt="Dress code: trajes para damas e cavalheiros">
+      <button class="x" type="button" aria-label="Fechar"><svg viewBox="0 0 16 16" fill="none" stroke="#fff4e2" stroke-width="1.6" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
+    </section>
+    <section class="page" id="pg-gifts" role="dialog" aria-modal="true" aria-label="Dicas de presentes">
+      <div class="veil"></div>
+      <img class="pgimg" src="pg-gifts.webp" alt="Dicas de presentes">
+      <button class="x" type="button" aria-label="Fechar"><svg viewBox="0 0 16 16" fill="none" stroke="#fff4e2" stroke-width="1.6" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
+    </section>
+    <section class="page" id="pg-local" role="dialog" aria-modal="true" aria-label="Localização">
+      <div class="veil"></div>
+      <img class="pgimg" src="pg-local.webp" alt="Moldura dourada com rosas">
+      <div class="local">
+        <small>LOCAL DA FESTA</small>
+        <h2>Buffet El Dourado</h2>
+        <span class="div" aria-hidden="true"></span>
+        <a class="glassbtn" id="mapbtn" href="#" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#4a0f22" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg>
+          Ver no mapa
+        </a>
+      </div>
+      <button class="x" type="button" aria-label="Fechar"><svg viewBox="0 0 16 16" fill="none" stroke="#fff4e2" stroke-width="1.6" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
+    </section>
+
+    <section class="page" id="pg-rsvp" role="dialog" aria-modal="true" aria-label="Confirmar presença">
+      <div class="veil"></div>
+      <div class="rsvp" id="rsvp">
+        <img class="cam" src="camafeu.png" alt="">
+        <small>BEATRIZ · 15 ANOS</small>
+        <h2>Confirme sua presença</h2>
+        <p class="lead">Lady Whistledown aguarda sua resposta, caro leitor.</p>
+        <form id="rsvpForm" novalidate>
+          <div><label for="rn">SEU NOME</label><input id="rn" type="text" autocomplete="name" maxlength="60" placeholder="Como devemos anunciá-lo?"></div>
+          <fieldset><legend>COMPARECERÁ AO BAILE?</legend>
+            <div class="opts">
+              <label class="opt"><input type="radio" name="ra" value="sim"><span>Com muito prazer, estarei lá</span></label>
+              <label class="opt"><input type="radio" name="ra" value="nao"><span>Infelizmente não poderei</span></label>
+            </div>
+          </fieldset>
+          <div id="rcw"><label>QUANTAS PESSOAS (COM VOCÊ)</label>
+            <div class="count" id="rcount"><button type="button" id="rminus" aria-label="Menos uma pessoa">&minus;</button><output id="rnum" aria-live="polite">1</output><button type="button" id="rplus" aria-label="Mais uma pessoa">+</button></div>
+          </div>
+          <div><label for="rm">UM RECADO PARA BEATRIZ (OPCIONAL)</label><textarea id="rm" maxlength="200" placeholder="Escreva aqui..."></textarea></div>
+          <p class="err" id="rerr" role="alert"></p>
+          <button class="glassbtn send" type="submit">Enviar resposta</button>
+        </form>
+        <div class="done" id="rdone">
+          <img src="camafeu.png" alt="" style="width:calc(var(--u)*13)">
+          <h3 id="rthanks">Obrigada!</h3>
+          <p id="rsum"></p>
+          <button class="glassbtn" type="button" id="redit">Alterar resposta</button>
+        </div>
+      </div>
+      <button class="x" type="button" aria-label="Fechar"><svg viewBox="0 0 16 16" fill="none" stroke="#fff4e2" stroke-width="1.6" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
+    </section>
+    <button class="mute" id="mute" type="button" aria-pressed="false" aria-label="Silenciar o som">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#e6d9b4" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="on"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="#e6d9b4" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="off"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>
+    </button>
+  </div>
+</main>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const stage = $('#stage'), cv = $('#sig'), ctx = cv.getContext('2d');
+  const sigzone = $('#sigzone'), typed = $('#typed'), seal = $('#seal');
+  const redoBtn = $('#redo'), kbdBtn = $('#kbd'), skipBtn = $('#skip');
+  const muteBtn = $('#mute'), tap = $('#tap');
+  const hintrow = $('#hintrow'), toolsrow = $('#toolsrow');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  hintrow.inert = false; toolsrow.inert = true;
+
+  (function motes() {
+    const el = $('#motes');
+    for (let i = 0; i < 22; i++) {
+      const sp = document.createElement('span');
+      sp.style.left = (Math.random() * 96) + '%';
+      sp.style.top = (8 + Math.random() * 80) + '%';
+      sp.style.setProperty('--dx', (Math.random() * 40 - 12) + 'px');
+      sp.style.setProperty('--dy', (-20 - Math.random() * 50) + 'px');
+      sp.style.setProperty('--dur', (8 + Math.random() * 9) + 's');
+      sp.style.setProperty('--dl', (-Math.random() * 14) + 's');
+      el.appendChild(sp);
+    }
+  })();
+
+  /* ---------- Áudio de teste (sintetizado). Troque pelos arquivos reais depois. ---------- */
+  let ac = null, master = null, scratchGain = null, muted = false, vol = .9, clinkTimer = null;
+  function noiseBuf(sec) {
+    const b = ac.createBuffer(1, Math.floor(ac.sampleRate * sec), ac.sampleRate), d = b.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    return b;
+  }
+  function startAudio() {
+    if (ac) { if (ac.state === 'suspended') ac.resume(); return; }
+    try {
+      ac = new (window.AudioContext || window.webkitAudioContext)();
+      master = ac.createGain(); master.gain.value = 0; master.connect(ac.destination);
+      master.gain.linearRampToValueAtTime(muted ? 0 : vol, ac.currentTime + 5);
+
+      const pad = ac.createGain(); pad.gain.value = 0; pad.connect(master);
+      pad.gain.linearRampToValueAtTime(.55, ac.currentTime + 8);
+      const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1000; lp.connect(pad);
+      const lfo = ac.createOscillator(); lfo.frequency.value = .07;
+      const lg = ac.createGain(); lg.gain.value = 380; lfo.connect(lg); lg.connect(lp.frequency); lfo.start();
+      [146.83, 220, 329.63, 369.99, 440].forEach((f, i) => {
+        [-5, 5].forEach((det) => {
+          const o = ac.createOscillator(); o.type = 'sawtooth'; o.frequency.value = f; o.detune.value = det;
+          const g = ac.createGain(); g.gain.value = .022 / (1 + i * .15);
+          o.connect(g); g.connect(lp); o.start();
+        });
+      });
+
+      const mur = ac.createBufferSource(); mur.buffer = noiseBuf(3); mur.loop = true;
+      const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 520; bp.Q.value = .8;
+      const mg = ac.createGain(); mg.gain.value = .05;
+      const ml = ac.createOscillator(); ml.frequency.value = .23;
+      const mlg = ac.createGain(); mlg.gain.value = .03; ml.connect(mlg); mlg.connect(mg.gain); ml.start();
+      mur.connect(bp); bp.connect(mg); mg.connect(master); mur.start();
+
+      const sc = ac.createBufferSource(); sc.buffer = noiseBuf(2); sc.loop = true;
+      const sbp = ac.createBiquadFilter(); sbp.type = 'bandpass'; sbp.frequency.value = 3200; sbp.Q.value = 1.2;
+      scratchGain = ac.createGain(); scratchGain.gain.value = 0;
+      sc.connect(sbp); sbp.connect(scratchGain); scratchGain.connect(master); sc.start();
+
+      setTimeout(clops, 600);
+      clinkLoop();
+    } catch (e) { ac = null; }
+  }
+  function clops() {
+    if (!ac) return;
+    const buf = noiseBuf(1);
+    for (let i = 0; i < 10; i++) {
+      const t = ac.currentTime + i * .42 + (i % 2 ? .09 : 0);
+      const src = ac.createBufferSource(); src.buffer = buf;
+      const f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 420;
+      const g = ac.createGain(); g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(.06 * (1 - i / 11), t + .008);
+      g.gain.exponentialRampToValueAtTime(.0001, t + .09);
+      src.connect(f); f.connect(g); g.connect(master); src.start(t, Math.random() * .8); src.stop(t + .1);
+    }
+  }
+  function clink() {
+    if (!ac) return;
+    const t = ac.currentTime, base = 2100 + Math.random() * 700;
+    [1, 1.52, 2.31].forEach((m, i) => {
+      const o = ac.createOscillator(); o.type = 'sine'; o.frequency.value = base * m;
+      const g = ac.createGain(); g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(.016 / (i + 1), t + .005);
+      g.gain.exponentialRampToValueAtTime(.0001, t + 1);
+      o.connect(g); g.connect(master); o.start(t); o.stop(t + 1.05);
+    });
+  }
+  function clinkLoop() {
+    clearTimeout(clinkTimer);
+    clinkTimer = setTimeout(() => { clink(); clinkLoop(); }, 4000 + Math.random() * 4500);
+  }
+  function chime() {
+    if (!ac) return;
+    const t = ac.currentTime;
+    [880, 1318.5, 1760].forEach((f, i) => {
+      const o = ac.createOscillator(); o.type = 'sine'; o.frequency.value = f;
+      const g = ac.createGain(); g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(.05 / (i + 1), t + .01);
+      g.gain.exponentialRampToValueAtTime(.0001, t + 2.2);
+      o.connect(g); g.connect(master); o.start(t); o.stop(t + 2.3);
+    });
+  }
+  function whoosh() {
+    if (!ac) return;
+    const t = ac.currentTime;
+    const src = ac.createBufferSource(); src.buffer = noiseBuf(2);
+    const f = ac.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = .9;
+    f.frequency.setValueAtTime(400, t); f.frequency.exponentialRampToValueAtTime(1800, t + 1.4);
+    const g = ac.createGain(); g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(.09, t + .6); g.gain.linearRampToValueAtTime(0, t + 1.8);
+    src.connect(f); f.connect(g); g.connect(master); src.start(t); src.stop(t + 1.9);
+  }
+  function setVol(v, tc) {
+    vol = v;
+    if (master) master.gain.setTargetAtTime(muted ? 0 : v, ac.currentTime, tc || .4);
+  }
+  muteBtn.addEventListener('click', () => {
+    muted = !muted;
+    muteBtn.setAttribute('aria-pressed', String(muted));
+    muteBtn.setAttribute('aria-label', muted ? 'Ativar o som' : 'Silenciar o som');
+    startAudio();
+    if (master) master.gain.setTargetAtTime(muted ? 0 : vol, ac.currentTime, .15);
+  });
+
+  /* ---------- Aproximar a câmera do livro ---------- */
+  function zoomIn() {
+    if (stage.classList.contains('zoomed')) return;
+    startAudio();
+    stage.classList.add('zoomed');
+    hintrow.inert = true; toolsrow.inert = false;
+    updateButtons();
+  }
+  tap.addEventListener('click', zoomIn);
+
+  /* ---------- Assinatura com o dedo ---------- */
+  const wet = $('#sigwet'), wctx = wet.getContext('2d');
+  const INK = [22, 18, 46], INK_LIGHT = [62, 50, 108], WETC = 'rgb(58,46,104)';
+  let strokes = [], cur = null, dryTimer = null, clearTimer = null, mode = 'draw', state = 'idle';
+  const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+  const mix = (a, b, t) => 'rgb(' + a.map((v, i) => Math.round(v + (b[i] - v) * t)).join(',') + ')';
+  const mid = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+
+  function fit() {
+    const r = cv.getBoundingClientRect();
+    if (!r.width) return;
+    const d = Math.min(window.devicePixelRatio || 1, 2);
+    [cv, wet].forEach((c) => { c.width = Math.round(r.width * d); c.height = Math.round(r.height * d); });
+    [ctx, wctx].forEach((c) => { c.setTransform(d, 0, 0, d, 0, 0); c.lineCap = 'round'; c.lineJoin = 'round'; });
+    ctx.shadowColor = 'rgba(36,28,76,.55)'; ctx.shadowBlur = 2.2 * d; // a tinta "escorre" um pouco no papel
+    repaintAll();
+  }
+  function path(c, x0, y0, cx, cy, x1, y1) {
+    c.beginPath(); c.moveTo(x0, y0);
+    if (cx == null) c.lineTo(x1, y1); else c.quadraticCurveTo(cx, cy, x1, y1);
+  }
+  function inkSeg(x0, y0, cx, cy, x1, y1, w, f) {
+    path(ctx, x0, y0, cx, cy, x1, y1);
+    ctx.lineWidth = w; ctx.strokeStyle = mix(INK, INK_LIGHT, f); ctx.stroke();
+    // camada de tinta molhada: mais clara e brilhante, some quando seca
+    path(wctx, x0, y0, cx, cy, x1, y1);
+    wctx.lineWidth = w * .92; wctx.strokeStyle = WETC; wctx.stroke();
+    path(wctx, x0 - .35, y0 - .35, cx == null ? null : cx - .35, cy == null ? null : cy - .35, x1 - .35, y1 - .35);
+    wctx.lineWidth = Math.max(.4, w * .2); wctx.strokeStyle = 'rgba(226,196,124,.5)'; wctx.stroke();
+  }
+  function dot(p) {
+    ctx.fillStyle = mix(INK, INK_LIGHT, 0); ctx.beginPath(); ctx.arc(p.x, p.y, p.w * .6 + .2, 0, 7); ctx.fill();
+    wctx.fillStyle = WETC; wctx.beginPath(); wctx.arc(p.x, p.y, p.w * .55 + .2, 0, 7); wctx.fill();
+  }
+  function tail(s, final) {
+    const p = s.pts, n = p.length;
+    if (n < 2) return;
+    if (n === 2) { const m = mid(p[0], p[1]); inkSeg(p[0].x, p[0].y, null, null, m.x, m.y, p[1].w, p[1].f); }
+    else { const a = mid(p[n - 3], p[n - 2]), b = mid(p[n - 2], p[n - 1]); inkSeg(a.x, a.y, p[n - 2].x, p[n - 2].y, b.x, b.y, p[n - 2].w, p[n - 2].f); }
+    if (final) { const m = mid(p[n - 2], p[n - 1]); inkSeg(m.x, m.y, null, null, p[n - 1].x, p[n - 1].y, p[n - 1].w, p[n - 1].f); }
+  }
+  function repaintAll() {
+    ctx.clearRect(0, 0, cv.width, cv.height); wctx.clearRect(0, 0, wet.width, wet.height);
+    strokes.forEach((s) => {
+      if (!s.pts.length) return;
+      dot(s.pts[0]);
+      const t = { pts: [] };
+      s.pts.forEach((pt) => { t.pts.push(pt); tail(t, false); });
+      if (t.pts.length > 1) tail(t, true);
+    });
+  }
+  function dry(fast) {
+    clearTimeout(dryTimer); clearTimeout(clearTimer);
+    const d = reduce ? .2 : (fast ? 1 : 1.8);
+    wet.style.transition = 'opacity ' + d + 's ease'; wet.style.opacity = '0';
+    clearTimer = setTimeout(() => wctx.clearRect(0, 0, wet.width, wet.height), d * 1000 + 100);
+  }
+  function pos(e) {
+    const r = cv.getBoundingClientRect();
+    return { x: e.clientX - r.left, y: e.clientY - r.top, t: e.timeStamp || performance.now() };
+  }
+  function updateButtons() {
+    const has = mode === 'draw' ? strokes.reduce((n, s) => n + s.pts.length, 0) > 6 : typed.value.trim().length > 0;
+    const locked = state === 'sealed' || state === 'done';
+    seal.disabled = !has || locked;
+    redoBtn.disabled = locked || mode !== 'draw' || !strokes.length;
+    kbdBtn.disabled = locked; skipBtn.disabled = locked;
+  }
+  function addPoint(ev) {
+    const p = pos(ev), l = cur.pts[cur.pts.length - 1];
+    const dx = p.x - l.x, dy = p.y - l.y, dist = Math.hypot(dx, dy);
+    if (dist < 1.2) return;
+    const v = dist / Math.max(1, p.t - l.t);
+    const down = Math.max(0, dy / dist);                 // traço descendo engrossa, como na pena de ponta
+    const vf = clamp(1.15 - v * .5, .5, 1.05);          // mais devagar, mais tinta
+    p.w = l.w * .7 + (1 + (.9 + 2.2 * down) * vf) * .3;
+    p.f = clamp(v * .5, 0, 1);
+    cur.pts.push(p); tail(cur, false);
+    if (scratchGain) scratchGain.gain.setTargetAtTime(Math.min(.05, v * .035), ac.currentTime, .03);
+    updateButtons();
+  }
+  cv.addEventListener('pointerdown', (e) => {
+    if (state === 'sealed' || state === 'done') return;
+    e.preventDefault();
+    startAudio();
+    state = 'signing';
+    sigzone.classList.add('started');
+    clearTimeout(dryTimer); clearTimeout(clearTimer);
+    wet.style.transition = 'none'; wet.style.opacity = '1';
+    try { cv.setPointerCapture(e.pointerId); } catch (_) {}
+    const p = pos(e); p.w = 2.2; p.f = 0;
+    cur = { pts: [p] };
+    strokes.push(cur);
+    dot(p); updateButtons();
+  });
+  cv.addEventListener('pointermove', (e) => {
+    if (!cur) return;
+    e.preventDefault();
+    const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [];
+    (evs.length ? evs : [e]).forEach((ev) => { if (cur) addPoint(ev); });
+  });
+  function endStroke() {
+    if (!cur) return;
+    if (cur.pts.length > 1) tail(cur, true);
+    cur = null;
+    if (scratchGain) scratchGain.gain.setTargetAtTime(0, ac.currentTime, .06);
+    clearTimeout(dryTimer);
+    dryTimer = setTimeout(() => dry(false), 1200);
+    updateButtons();
+  }
+  cv.addEventListener('pointerup', endStroke);
+  cv.addEventListener('pointercancel', endStroke);
+
+  redoBtn.addEventListener('click', () => {
+    strokes = []; clearTimeout(dryTimer); clearTimeout(clearTimer);
+    wet.style.transition = 'none'; wet.style.opacity = '1';
+    repaintAll();
+    sigzone.classList.remove('started'); state = 'idle'; updateButtons();
+  });
+  kbdBtn.addEventListener('click', () => {
+    startAudio();
+    if (mode === 'draw') {
+      mode = 'type'; cv.hidden = true; wet.hidden = true; typed.hidden = false; typed.focus();
+      kbdBtn.textContent = 'assinar com o dedo';
+      sigzone.classList.add('started');
+    } else {
+      mode = 'draw'; cv.hidden = false; wet.hidden = false; typed.hidden = true;
+      kbdBtn.textContent = 'usar o teclado';
+      if (!strokes.length) sigzone.classList.remove('started');
+      fit();
+    }
+    updateButtons();
+  });
+  typed.addEventListener('input', updateButtons);
+  typed.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !seal.disabled) register(); });
+
+  /* ---------- Registrar e entrar no salão ---------- */
+  const wait = (ms) => new Promise((r) => setTimeout(r, reduce ? Math.min(ms, 400) : ms));
+
+  function register() {
+    if (state === 'sealed' || state === 'done') return;
+    startAudio(); unlockFilm();
+    state = 'sealed';
+    seal.classList.add('stamped'); chime();
+    updateButtons();
+    if (mode === 'draw') dry(true);
+    else { typed.readOnly = true; typed.classList.add('wet'); requestAnimationFrame(() => typed.classList.remove('wet')); }
+    wait(2600).then(finale);
+  }
+  seal.addEventListener('click', register);
+
+  function finale() {
+    startAudio();
+    state = 'done';
+    stage.classList.add('leaving');
+    toolsrow.inert = true;
+    whoosh();
+    setVol(.55, 1);
+    wait(900).then(() => {
+      stage.classList.add('finale');
+      setVol(.2, 1.8);
+      return wait(5600);
+    }).then(() => {
+      setVol(.04, 1.2);
+      return wait(900);
+    }).then(startFilm);
+  }
+  skipBtn.addEventListener('click', () => {
+    startAudio();
+    if (state === 'sealed' || state === 'done') return;
+    unlockFilm();
+    state = 'sealed'; updateButtons();
+    wait(300).then(finale);
+  });
+
+  function reset() {
+    resetFilm();
+    stage.classList.remove('finale', 'leaving', 'zoomed');
+    seal.classList.remove('stamped');
+    strokes = []; cur = null; clearTimeout(dryTimer); clearTimeout(clearTimer);
+    wet.style.transition = 'none'; wet.style.opacity = '1'; wet.hidden = false;
+    typed.value = ''; typed.readOnly = false; typed.classList.remove('wet');
+    sigzone.classList.remove('started');
+    if (mode === 'type') { mode = 'draw'; cv.hidden = false; typed.hidden = true; kbdBtn.textContent = 'usar o teclado'; }
+    state = 'idle';
+    hintrow.inert = false; toolsrow.inert = true;
+    setVol(.9, .8);
+    fit(); updateButtons();
+  }
+  $('#replay').addEventListener('click', reset);
+
+  /* ---------- Abertura em vídeo + texto escrito à pena ---------- */
+  const MAP_URL = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('Buffet El Dourado');
+  $('#mapbtn').href = MAP_URL;
+
+  const film = $('#film'), endimg = $('#endimg'), scriptEl = $('#script'), cameo = $('#cameo'), pen = $('#pen');
+  const skipOpen = $('#skipopen'), toast = $('#toast');
+
+  /* Transcrição da narração, palavra por palavra, com o instante (s) em que cada palavra começa no vídeo */
+  const PARAS = [
+    ['sal', [['Caro',10.72],['e',11.28],['gentil',11.44],['leitor,',12.00]]],
+    ['', [['como',13.04],['bem',13.44],['sabe,',13.68],['toda',14.32],['temporada',14.64],['reserva',15.28],['um',15.84],['acontecimento',16.00],['digno',16.72],['de',17.20],['ser',17.36],['comentado.',17.60],
+          ['E',18.48],['esta,',18.64],['naturalmente,',19.04],['não',19.84],['seria',20.08],['diferente,',20.56],['pois',21.28],['entre',21.68],['bailes,',21.92],['vestidos,',22.64],['cavalheiros',23.28],['e',24.00],['alguns',24.16],['segredos',24.48],['muito',25.12],['bem',25.36],['guardados,',25.60],['um',26.48],['novo',26.64],['diamante',26.96],['acaba',27.60],['de',28.00],['surgir.',28.24]]],
+    ['', [['E',29.28],['desta',29.52],['vez,',29.92],['o',30.32],['diamante',30.56],['da',31.20],['temporada',31.36],['celebra',32.00],['uma',32.64],['ocasião',32.88],['especialmente',33.60],['preciosa.',34.40]]],
+    ['em', [['Seus',35.92],['quinze',36.56],['anos.',36.96]]],
+    ['', [['Uma',37.60],['noite',37.92],['de',38.32],['música,',38.48],['dança,',39.04],['flores',39.60],['e,',40.16],['quem',40.40],['sabe,',40.72],['alguns',41.28],['pequenos',41.76],['escândalos',42.40],['nos',43.12],['aguarda.',43.36]]],
+    ['', [['Portanto,',44.32],['caro',44.88],['leitor,',45.28],['prepare',46.00],['seu',46.64],['melhor',46.88],['traje,',47.28],['pois',48.00],['esta',48.32],['é',48.64],['uma',48.80],['noite',48.96],['que',49.28],['certamente',49.52],['será',50.08],['comentada',50.40],['por',51.12],['toda',51.36],['a',51.60],['temporada.',51.76]]],
+    ['', [['Com',56.00],['toda',56.32],['consideração',56.80],['e',57.68],['uma',57.92],['curiosidade',58.16],['que',58.96],['jamais',59.12],['poderia',59.68],['ser',60.16],['chamada',60.32],['de',60.80],['indiscreta,',61.04]]],
+    ['sig', [['Lady',62.08],['Whistledown.',62.56]]]
+  ];
+  const LEAD = 0.08;       // a tinta chega um pouco antes da voz
+  const WORDS = [];
+  PARAS.forEach(([cls, ws]) => {
+    const p = document.createElement('p'); if (cls) p.className = cls;
+    ws.forEach(([t, st], i) => {
+      const el = document.createElement('span'); el.className = 'w'; el.dataset.t = t; el.textContent = t;
+      p.appendChild(el); if (i < ws.length - 1) p.appendChild(document.createTextNode(' '));
+      WORDS.push({ el, t, s: st - LEAD, e: 0, p: -1, wet: -1, fx: 0, fy: 0, fw: 0, fh: 0 });
+    });
+    scriptEl.appendChild(p);
+  });
+  WORDS.forEach((w, i) => {
+    const nxt = WORDS[i + 1];
+    const natural = Math.max(.28, w.t.length * .085 + .12);
+    w.e = nxt ? Math.min(w.s + natural, nxt.s - .03) : w.s + natural + .5;
+    if (nxt && nxt.s - w.s < .5) w.e = nxt.s - .03;
+  });
+  const T_FIRST = WORDS[0].s, T_LAST = WORDS[WORDS.length - 1].e;
+
+  /* Ajusta o corpo da letra para o texto caber no pergaminho e guarda a posição de cada palavra */
+  let boxW = 1, boxH = 1;
+  function fitScript() {
+    let fs = 6.2;
+    scriptEl.style.setProperty('--fs', fs);
+    while (fs > 2.6 && scriptEl.scrollHeight > scriptEl.clientHeight + 1) { fs -= .1; scriptEl.style.setProperty('--fs', fs.toFixed(2)); }
+    const b = scriptEl.getBoundingClientRect(); boxW = b.width || 1; boxH = b.height || 1;
+    WORDS.forEach((w) => {
+      const r = w.el.getBoundingClientRect(), em = parseFloat(getComputedStyle(w.el).fontSize) || 16;
+      w.fx = (r.left - b.left + em * .16) / boxW; w.fw = (r.width - em * .32) / boxW;
+      w.fy = (r.top - b.top) / boxH; w.fh = r.height / boxH;
+    });
+  }
+
+  let penX = 0, penY = 0, penInit = false;
+  const sm = (x) => x * x * (3 - 2 * x);
+  const cl01 = (x) => x < 0 ? 0 : x > 1 ? 1 : x;
+  function update(t, snap) {
+    // visibilidade do texto: entra com o pergaminho, sai quando ele se dissolve
+    const so = cl01((t - 10.1) / .5) * (1 - cl01((t - 65.1) / 1.2));
+    scriptEl.style.opacity = so.toFixed(3); cameo.style.opacity = so.toFixed(3);
+    let act = null;
+    for (const w of WORDS) {
+      const p = cl01((t - w.s) / (w.e - w.s));
+      const pp = +(p * .75 + sm(p) * .25).toFixed(3);
+      if (pp !== w.p) { w.p = pp; w.el.style.setProperty('--p', pp); }
+      const wet = t < w.e ? (p > 0 ? 1 : 0) : cl01(1 - (t - w.e) / .9);
+      const wq = +wet.toFixed(2);
+      if (wq !== w.wet) { w.wet = wq; w.el.style.setProperty('--wet', wq); }
+      if (t >= w.s) act = w;
+    }
+    // pena
+    const on = t > T_FIRST - .5 && t < T_LAST + .9 && so > 0.02;
+    if (act && on) {
+      const p = act.p;
+      const em = parseFloat(getComputedStyle(scriptEl).fontSize) || 16;
+      const bx = scriptEl.getBoundingClientRect(), sx = scriptEl.offsetParent ? scriptEl.offsetParent.getBoundingClientRect() : { left: 0, top: 0 };
+      const resting = t > act.e;
+      const tx = (act.fx + act.fw * (resting ? 1 : p)) * boxW + (resting ? em * .1 : 0);
+      const ty = (act.fy + act.fh * .66) * boxH + (resting ? -em * .25 : Math.sin(p * 11) * em * .07);
+      if (!penInit || snap) { penX = tx; penY = ty; penInit = true; }
+      else { penX += (tx - penX) * .42; penY += (ty - penY) * .32; }
+      const ox = bx.left - sx.left, oy = bx.top - sx.top;
+      const rot = resting ? -6 : -2 + Math.sin(p * 9) * 2.2;
+      pen.style.transform = 'translate(' + (ox + penX).toFixed(1) + 'px,' + (oy + penY).toFixed(1) + 'px) translate(0,-100%) rotate(' + rot.toFixed(1) + 'deg)';
+      const fade = Math.min(cl01((t - (T_FIRST - .5)) / .4), 1 - cl01((t - T_LAST) / .8));
+      pen.style.opacity = fade.toFixed(2);
+    } else { pen.style.opacity = 0; penInit = false; }
+  }
+  fitScript();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { fitScript(); update(film.currentTime || 0, true); });
+  window.addEventListener('resize', () => { fitScript(); update(film.currentTime || 0, true); });
+  update(0, true);
+
+  let raf = 0;
+  function loop() { update(film.currentTime); raf = (!film.paused && !film.ended) ? requestAnimationFrame(loop) : 0; }
+  film.addEventListener('play', () => { if (!raf) raf = requestAnimationFrame(loop); });
+  ['seeked', 'pause', 'ended', 'loadeddata'].forEach((ev) => film.addEventListener(ev, () => update(film.currentTime, true)));
+  film.addEventListener('timeupdate', () => { if (film.duration && film.currentTime >= film.duration - .3) { showFinal(); try { film.pause(); } catch (e) {} } });
+  film.addEventListener('ended', showFinal);
+
+  /* iOS: libera o vídeo no primeiro toque do convidado, para tocar com som depois */
+  let unlocked = false;
+  function unlockFilm() {
+    if (unlocked) return; unlocked = true;
+    try {
+      film.muted = true;
+      const p = film.play();
+      const back = () => { if (!stage.classList.contains('film-on')) { film.pause(); try { film.currentTime = 0; } catch (e) {} } };
+      if (p && p.then) p.then(back).catch(() => {}); else back();
+    } catch (e) {}
+  }
+  /* seguranca: o vídeo nunca toca (nem com som) antes da cena do salão */
+  film.addEventListener('playing', () => { if (!stage.classList.contains('film-on') && !stage.classList.contains('film-skip')) { film.pause(); try { film.currentTime = 0; } catch (e) {} } });
+  tap.addEventListener('click', unlockFilm);
+
+  function startFilm() {
+    if (state === 'skipped') return;
+    stage.classList.add('film-on');
+    film.currentTime = 0; film.volume = 1; film.muted = muted;
+    const p = film.play();
+    if (p && p.catch) p.catch(() => { film.muted = true; film.play().catch(() => { showFinal(); }); });
+    setVol(0, .8);
+  }
+  function showFinal() {
+    if (stage.classList.contains('ready')) return;
+    stage.classList.add('ready');
+  }
+  skipOpen.addEventListener('click', () => {
+    if (stage.classList.contains('ready')) return;
+    state = 'skipped'; startAudio();
+    try { film.pause(); } catch (e) {}
+    setVol(0, .5);
+    stage.classList.add('leaving', 'film-skip', 'ready');
+    stage.classList.remove('film-on');
+    toolsrow.inert = true;
+    update(0, true);
+  });
+  function resetFilm() {
+    try { film.pause(); film.currentTime = 0; } catch (e) {}
+    stage.classList.remove('film-on', 'film-skip', 'ready', 'paged');
+    document.querySelectorAll('.page.on').forEach((p) => p.classList.remove('on'));
+    penInit = false; update(0, true);
+  }
+  muteBtn.addEventListener('click', () => { film.muted = muted; });
+
+  /* ---------- Botões e páginas ---------- */
+  let toastT = null, lastBtn = null;
+  function openPage(id) {
+    const pg = $('#pg-' + id); if (!pg) return;
+    lastBtn = document.activeElement;
+    pg.classList.add('on'); stage.classList.add('paged');
+    setTimeout(() => { const x = pg.querySelector('.x'); if (x) x.focus({ preventScroll: true }); }, 60);
+  }
+  function closePages() {
+    document.querySelectorAll('.page.on').forEach((p) => p.classList.remove('on'));
+    stage.classList.remove('paged');
+    if (lastBtn && lastBtn.focus) lastBtn.focus({ preventScroll: true });
+  }
+  document.querySelectorAll('.fbtn').forEach((b) => b.addEventListener('click', () => {
+    if (b.dataset.open) return openPage(b.dataset.open);
+    toast.textContent = b.dataset.toast + ' (em breve)';
+    toast.classList.add('on'); clearTimeout(toastT);
+    toastT = setTimeout(() => toast.classList.remove('on'), 2200);
+  }));
+  document.querySelectorAll('.page .x').forEach((x) => x.addEventListener('click', closePages));
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePages(); });
+
+  /* ---------- RSVP ---------- */
+  const RSVP_ENDPOINT = ''; // opcional: URL que recebe as respostas (POST, JSON)
+  const rsvp = $('#rsvp'), rform = $('#rsvpForm'), rn = $('#rn'), rm = $('#rm'), rnum = $('#rnum'), rerr = $('#rerr');
+  let rcount = 1;
+  const rans = () => { const c = rform.querySelector('input[name=ra]:checked'); return c ? c.value : ''; };
+  function rsync() { rnum.textContent = rcount; $('#rcount').classList.toggle('off', rans() === 'nao'); }
+  $('#rminus').addEventListener('click', () => { rcount = Math.max(1, rcount - 1); rsync(); });
+  $('#rplus').addEventListener('click', () => { rcount = Math.min(10, rcount + 1); rsync(); });
+  rform.querySelectorAll('input[name=ra]').forEach((i) => i.addEventListener('change', rsync));
+  function rshow(d) {
+    const first = (d.nome || '').trim().split(/\s+/)[0];
+    $('#rthanks').textContent = d.resposta === 'sim' ? 'Até o baile, ' + first + '!' : 'Sentiremos sua falta, ' + first + '.';
+    $('#rsum').textContent = d.resposta === 'sim'
+      ? 'Lady Whistledown anotou sua presença' + (d.pessoas > 1 ? ' e a de mais ' + (d.pessoas - 1) + (d.pessoas > 2 ? ' convidados.' : ' convidado.') : '.')
+      : 'Lady Whistledown anotou que você não poderá comparecer.';
+    rsvp.classList.add('sent');
+  }
+  rform.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const nome = rn.value.trim();
+    if (!nome) { rerr.textContent = 'Diga-nos seu nome, caro leitor.'; rn.focus(); return; }
+    if (!rans()) { rerr.textContent = 'Conte-nos se estará presente.'; return; }
+    rerr.textContent = '';
+    const d = { nome, resposta: rans(), pessoas: rans() === 'sim' ? rcount : 0, recado: rm.value.trim(), quando: new Date().toISOString() };
+    try { localStorage.setItem('baile-rsvp', JSON.stringify(d)); } catch (e2) {}
+    if (RSVP_ENDPOINT) { try { fetch(RSVP_ENDPOINT, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(d) }); } catch (e3) {} }
+    rshow(d);
+  });
+  $('#redit').addEventListener('click', () => { rsvp.classList.remove('sent'); rn.focus({ preventScroll: true }); });
+  try { const sv = JSON.parse(localStorage.getItem('baile-rsvp') || 'null'); if (sv && sv.nome) { rn.value = sv.nome; rm.value = sv.recado || ''; rcount = sv.pessoas || 1; const rd = rform.querySelector('input[value=' + sv.resposta + ']'); if (rd) rd.checked = true; rsync(); rshow(sv); } } catch (e) {}
+  rsync();
+
+
+  window.addEventListener('resize', fit);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+  fit(); updateButtons();
+
+})();
+</script>
