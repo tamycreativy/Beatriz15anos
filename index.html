@@ -1140,6 +1140,15 @@ html, body { margin: 0; padding: 0; background: #120a14; overflow: hidden; }
       if (k >= 1) clearInterval(bgmT);
     }, 50);
   }
+  /* se o navegador bloqueou a música (ex.: iPhone), ela entra no primeiro toque; e retoma se algo a pausar */
+  function kickBgm() {
+    if (!bgmOn || !bgm.paused) return;
+    bgm.muted = muted;
+    const p = bgm.play(); if (p && p.catch) p.catch(() => {});
+  }
+  ['pointerdown', 'touchend', 'click', 'keydown'].forEach((ev) => document.addEventListener(ev, kickBgm, true));
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) kickBgm(); });
+  bgm.addEventListener('pause', () => { if (bgmOn && !document.hidden) setTimeout(kickBgm, 200); });
   function stopBgm() { bgmOn = false; clearInterval(bgmT); try { bgm.pause(); bgm.currentTime = 0; } catch (e) {} }
   function showFinal() {
     if (stage.classList.contains('ready')) return;
