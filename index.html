@@ -699,7 +699,7 @@ html, body { margin: 0; padding: 0; background: #120a14; overflow: hidden; }
     return b;
   }
   function startAudio() {
-    if (ac) { if (ac.state === 'suspended') ac.resume(); return; }
+    if (ac) { if (ac.state === 'suspended' && !ambientOff) ac.resume(); return; }
     try {
       ac = new (window.AudioContext || window.webkitAudioContext)();
       master = ac.createGain(); master.gain.value = 0; master.connect(ac.destination);
@@ -760,6 +760,7 @@ html, body { margin: 0; padding: 0; background: #120a14; overflow: hidden; }
   }
   function clinkLoop() {
     clearTimeout(clinkTimer);
+    if (ambientOff) return;
     clinkTimer = setTimeout(() => { clink(); clinkLoop(); }, 4000 + Math.random() * 4500);
   }
   function chime() {
@@ -783,16 +784,28 @@ html, body { margin: 0; padding: 0; background: #120a14; overflow: hidden; }
     g.gain.linearRampToValueAtTime(.09, t + .6); g.gain.linearRampToValueAtTime(0, t + 1.8);
     src.connect(f); f.connect(g); g.connect(master); src.start(t); src.stop(t + 1.9);
   }
+  let ambientOff = false;
   function setVol(v, tc) {
     vol = v;
-    if (master) master.gain.setTargetAtTime(muted ? 0 : v, ac.currentTime, tc || .4);
+    if (!master) return;
+    const g = master.gain, now = ac.currentTime;
+    /* cancela a subida inicial agendada (5 s): sem isso o som ambiente voltava a subir por cima da música */
+    try { g.cancelScheduledValues(now); g.setValueAtTime(g.value, now); } catch (e) {}
+    g.setTargetAtTime(muted || ambientOff ? 0 : v, now, tc || .4);
+  }
+  /* quando a música de fundo entra, o som ambiente sintetizado sai de vez (era a "segunda música") */
+  function killAmbient() {
+    ambientOff = true; clearTimeout(clinkTimer); clinkTimer = null;
+    if (!ac || !master) return;
+    try { const g = master.gain, now = ac.currentTime; g.cancelScheduledValues(now); g.setValueAtTime(g.value, now); g.setTargetAtTime(0, now, .25); } catch (e) {}
+    setTimeout(() => { try { if (ac && ac.state === 'running') ac.suspend(); } catch (e) {} }, 1200);
   }
   muteBtn.addEventListener('click', () => {
     muted = !muted;
     muteBtn.setAttribute('aria-pressed', String(muted));
     muteBtn.setAttribute('aria-label', muted ? 'Ativar o som' : 'Silenciar o som');
     startAudio();
-    if (master) master.gain.setTargetAtTime(muted ? 0 : vol, ac.currentTime, .15);
+    if (master) master.gain.setTargetAtTime(muted || ambientOff ? 0 : vol, ac.currentTime, .15);
   });
 
   /* ---------- Aproximar a câmera do livro ---------- */
@@ -1094,6 +1107,7 @@ html, body { margin: 0; padding: 0; background: #120a14; overflow: hidden; }
     if (frozen) return; frozen = true;
     try { film.pause(); film.currentTime = Math.max(0, film.duration - .3); } catch (e) {}
     stage.classList.add('ready'); startBgm();
+    setTimeout(() => { film.muted = true; }, 1000);
   }
   function loop() { update(film.currentTime); if (film.duration && !film.paused && film.duration - film.currentTime < .32) freezeEnd(); raf = (!film.paused && !film.ended) ? requestAnimationFrame(loop) : 0; }
   film.addEventListener('play', () => { if (!raf) raf = requestAnimationFrame(loop); });
@@ -1130,6 +1144,7 @@ html, body { margin: 0; padding: 0; background: #120a14; overflow: hidden; }
   let bgmOn = false, bgmT = 0;
   function startBgm() {
     if (bgmOn) return; bgmOn = true;
+    killAmbient();
     bgm.muted = muted; bgm.volume = 0; try { bgm.currentTime = 0; } catch (e) {}
     const p = bgm.play(); if (p && p.catch) p.catch(() => {});
     const t0 = performance.now(), dur = 900;
@@ -1149,6 +1164,9 @@ html, body { margin: 0; padding: 0; background: #120a14; overflow: hidden; }
   ['pointerdown', 'touchend', 'click', 'keydown'].forEach((ev) => document.addEventListener(ev, kickBgm, true));
   document.addEventListener('visibilitychange', () => { if (!document.hidden) kickBgm(); });
   bgm.addEventListener('pause', () => { if (bgmOn && !document.hidden) setTimeout(kickBgm, 200); });
+  /* guarda: se a música parar por qualquer motivo (abrir página, trocar de app, bloqueio do navegador), volta sozinha */
+  setInterval(() => { if (bgmOn && bgm.paused && !document.hidden) kickBgm(); }, 700);
+  ['stalled', 'suspend', 'waiting', 'emptied', 'abort', 'ended'].forEach((ev) => bgm.addEventListener(ev, () => { if (bgmOn && !document.hidden) setTimeout(kickBgm, 150); }));
   function stopBgm() { bgmOn = false; clearInterval(bgmT); try { bgm.pause(); bgm.currentTime = 0; } catch (e) {} }
   function showFinal() {
     if (stage.classList.contains('ready')) return;
@@ -1172,7 +1190,7 @@ html, body { margin: 0; padding: 0; background: #120a14; overflow: hidden; }
     else if (fin && !fin.complete) { fin.addEventListener('load', () => stage.classList.add('film-end'), { once: true }); fin.addEventListener('error', goEndVideo, { once: true }); }
     else goEndVideo();
     stage.classList.add('leaving', 'film-skip', 'ready');
-    startBgm();
+    startBgm(); film.muted = true;
     stage.classList.remove('film-on');
     toolsrow.inert = true;
     update(0, true);
@@ -1183,19 +1201,19 @@ html, body { margin: 0; padding: 0; background: #120a14; overflow: hidden; }
     document.querySelectorAll('.page.on').forEach((p) => p.classList.remove('on'));
     penInit = false; update(0, true); stopBgm();
   }
-  muteBtn.addEventListener('click', () => { film.muted = muted; bgm.muted = muted; });
+  muteBtn.addEventListener('click', () => { film.muted = muted || bgmOn; bgm.muted = muted; });
 
   /* ---------- Botões e páginas ---------- */
   let toastT = null, lastBtn = null;
   function openPage(id) {
     const pg = $('#pg-' + id); if (!pg) return;
     lastBtn = document.activeElement;
-    pg.classList.add('on'); stage.classList.add('paged');
+    pg.classList.add('on'); stage.classList.add('paged'); kickBgm();
     setTimeout(() => { const x = pg.querySelector('.x'); if (x) x.focus({ preventScroll: true }); }, 60);
   }
   function closePages() {
     document.querySelectorAll('.page.on').forEach((p) => p.classList.remove('on'));
-    stage.classList.remove('paged');
+    stage.classList.remove('paged'); kickBgm();
     if (lastBtn && lastBtn.focus) lastBtn.focus({ preventScroll: true });
   }
   document.querySelectorAll('.fbtn').forEach((b) => b.addEventListener('click', () => {
